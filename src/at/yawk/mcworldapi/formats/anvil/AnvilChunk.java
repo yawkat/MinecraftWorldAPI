@@ -52,7 +52,7 @@ class AnvilChunk extends AbstractAnvil implements Chunk {
     }
     
     @Override
-    public ChunkSection getSection(final int index) {
+    public AnvilChunkSection getSection(final int index) {
         if (index < 0 || index >= getSectionCount()) {
             throw new ArrayIndexOutOfBoundsException();
         }

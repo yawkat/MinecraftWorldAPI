@@ -62,7 +62,7 @@ public class Schematic {
             short[][][] ids = new short[v.getX()][v.getY()][v.getZ()];
             byte[] d = tag.getByteArray("Blocks");
             for (int i = 0; i < d.length; i++) {
-                ids[i / v.getX() / v.getZ()][(i / v.getX()) % v.getZ()][i % v.getX()] = d[i];
+                ids[i % v.getX()][i / v.getX() / v.getZ()][(i / v.getX()) % v.getZ()] = d[i];
             }
             return ids;
         }
@@ -73,7 +73,7 @@ public class Schematic {
             byte[][][] data = new byte[v.getX()][v.getY()][v.getZ()];
             byte[] d = tag.getByteArray("Data");
             for (int i = 0; i < d.length; i++) {
-                data[i / v.getX() / v.getZ()][(i / v.getX()) % v.getZ()][i % v.getX()] = (byte) (d[i] & 0xf);
+                data[i % v.getX()][i / v.getX() / v.getZ()][(i / v.getX()) % v.getZ()] = (byte) (d[i] & 0xf);
             }
             return data;
         }
@@ -102,13 +102,13 @@ public class Schematic {
                 @Override
                 public void setId(int id) {
                     BlockVector v = getCuboid().getV2();
-                    tag.getByteArray("Blocks")[location.getY() * v.getX() * v.getZ() | location.getZ() * v.getX() | location.getX()] = (byte) id;
+                    tag.getByteArray("Blocks")[(location.getY() * v.getX() * v.getZ()) + (location.getZ() * v.getX()) + (location.getX())] = (byte) id;
                 }
                 
                 @Override
                 public void setData(byte data) {
                     BlockVector v = getCuboid().getV2();
-                    tag.getByteArray("Data")[location.getY() * v.getX() * v.getZ() | location.getZ() * v.getX() | location.getX()] = (byte) (data & 0xf);
+                    tag.getByteArray("Data")[(location.getY() * v.getX() * v.getZ()) + (location.getZ() * v.getX()) + (location.getX())] = (byte) (data & 0xf);
                 }
                 
                 @Override
@@ -122,13 +122,13 @@ public class Schematic {
                 @Override
                 public int getId() {
                     BlockVector v = getCuboid().getV2();
-                    return tag.getByteArray("Blocks")[location.getY() * v.getX() * v.getZ() | location.getZ() * v.getX() | location.getX()];
+                    return tag.getByteArray("Blocks")[(location.getY() * v.getX() * v.getZ()) + (location.getZ() * v.getX()) + (location.getX())];
                 }
                 
                 @Override
                 public byte getData() {
                     BlockVector v = getCuboid().getV2();
-                    return (byte) (tag.getByteArray("Data")[location.getY() * v.getX() * v.getZ() | location.getZ() * v.getX() | location.getX()] & 0xf);
+                    return (byte) (tag.getByteArray("Data")[(location.getY() * v.getX() * v.getZ()) + (location.getZ() * v.getX()) + (location.getX())] & 0xf);
                 }
                 
                 @Override

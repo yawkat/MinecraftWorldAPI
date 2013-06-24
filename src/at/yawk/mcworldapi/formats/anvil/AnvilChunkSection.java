@@ -105,6 +105,14 @@ class AnvilChunkSection extends AbstractAnvil implements ChunkSection, Selection
         return a;
     }
     
+    byte[] getSetRawBlocks() {
+        return getSetSection().getByteArray("Blocks");
+    }
+    
+    byte[] getSetRawData() {
+        return getSetSection().getByteArray("Data");
+    }
+    
     @Override
     public Cuboid getCuboid() {
         BlockVector v1 = new BlockVector((chunk.location.getX() << CHUNK_SIZE_X) | (chunk.region.location.getX() << REGION_BLOCKS_X_BITS), index << CHUNK_SECTION_SIZE_Y_BITS, (chunk.location.getZ() << CHUNK_SIZE_X) | (chunk.region.location.getZ() << REGION_BLOCKS_X_BITS));
@@ -144,5 +152,40 @@ class AnvilChunkSection extends AbstractAnvil implements ChunkSection, Selection
             }
         }
         return l;
+    }
+    
+    void paste(short[][][] ids, boolean checkAdd, byte[][][] data, int sX1, int sY1, int sZ1, int sX2, int sY2, int sZ2, int dX1, int dY1, int dZ1) {
+        int offX = dX1 - sX1;
+        int offY = dY1 - sY1;
+        int offZ = dZ1 - sZ2;
+        byte[] targetIds = getSetSection().getByteArray("Blocks");
+        byte[] targetAdd;
+        if (checkAdd) {
+            targetAdd = getSetSection().getByteArray("Add");
+            if (targetAdd == null) {
+                targetAdd = new byte[2048];
+            }
+        } else {
+            targetAdd = null;
+        }
+        byte[] targetData = getSetSection().getByteArray("Data");
+        all: for (int x = sX1; x < sX2; x++) {
+            for (int y = sY1; y < sY2; y++) {
+                for (int z = sZ1; z < sZ2; z++) {
+                    int index = (y + offY) << 8 | (z + offZ) << 4 | (x + offX);
+                    if (targetIds.length > index) {
+                        targetIds[index] = (byte) ids[x][y][z];
+                        if (checkAdd && (ids[x][y][z] & ~0xff) != 0) {
+                            setHalfByte(targetAdd, index, (byte) (ids[x][y][z] >> 8));
+                        }
+                        if (data[x][y][z] != 0) {
+                            setHalfByte(targetData, index, data[x][y][z]);
+                        }
+                    } else {
+                        break all;
+                    }
+                }
+            }
+        }
     }
 }

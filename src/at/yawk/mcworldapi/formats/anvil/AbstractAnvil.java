@@ -52,13 +52,21 @@ abstract class AbstractAnvil {
     static final int CHUNK_SECTION_LENGTH = 1 << CHUNK_SECTION_LENGTH_BITS;
     
     /**
-     * Bits of the amount of {@link Chunk}s per {@link Region} along the X-axis
+     * Amount of bits of {@link #REGION_SIZE_X}
      */
     static final int REGION_SIZE_X_BITS = 5;
     /**
-     * Bits of the amount of {@link Chunk}s per {@link Region} along the Z-axis
+     * Amount of bits of {@link #REGION_SIZE_Z}
      */
     static final int REGION_SIZE_Z_BITS = 5;
+    /**
+     * Amount of {@link Chunk}s per {@link Region} along the X-axis
+     */
+    static final int REGION_SIZE_X = 1 << REGION_SIZE_X_BITS;
+    /**
+     * Amount of {@link Chunk}s per {@link Region} along the Z-axis
+     */
+    static final int REGION_SIZE_Z = 1 << REGION_SIZE_Z_BITS;
     /**
      * Bits of the amount of blocks per {@link Region} along the X-axis
      */

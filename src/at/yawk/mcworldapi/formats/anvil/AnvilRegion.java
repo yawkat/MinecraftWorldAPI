@@ -43,8 +43,8 @@ class AnvilRegion extends AbstractAnvil implements Region {
     }
     
     @Override
-    public Chunk getChunkRelative(final ChunkVector location) {
-        if (location.getX() < 0 || location.getZ() < 0 || location.getX() >= 32 || location.getZ() >= 32) {
+    public AnvilChunk getChunkRelative(final ChunkVector location) {
+        if (location.getX() < 0 || location.getZ() < 0 || location.getX() >= REGION_SIZE_X || location.getZ() >= REGION_SIZE_Z) {
             throw new ArrayIndexOutOfBoundsException();
         }
         return new AnvilChunk(this, location);
@@ -52,7 +52,7 @@ class AnvilRegion extends AbstractAnvil implements Region {
     
     @Override
     public Block getBlockRelative(BlockVector location) {
-        return getChunkRelative(new ChunkVector((location.getX() >> 4) & 31, (location.getZ() >> 4) & 31)).getBlockRelative(location);
+        return getChunkRelative(new ChunkVector((location.getX() >> CHUNK_SIZE_X_BITS) & (REGION_SIZE_X - 1), (location.getZ() >> CHUNK_SIZE_Z_BITS) & (REGION_SIZE_Z - 1))).getBlockRelative(location);
     }
     
     @Override
