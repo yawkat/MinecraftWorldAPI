@@ -37,13 +37,16 @@ class AnvilChunk extends AbstractAnvil implements Chunk {
                 tag = handle(e);
             }
         }
+        if (!tag.contains("Level")) {
+            tag.put("Level", new CompoundTag());
+        }
         return tag.getCompound("Level");
     }
     
     private void saveTag(CompoundTag tag) throws IOException {
-        final DataOutputStream os = region.getRegionFile().getChunkDataOutputStream(location.getX(), location.getZ());
-        NbtIo.write(tag, os);
-        os.close();
+        try (DataOutputStream os = region.getRegionFile().getChunkDataOutputStream(location.getX(), location.getZ())) {
+            NbtIo.write(tag, os);
+        }
     }
     
     @Override
@@ -66,7 +69,9 @@ class AnvilChunk extends AbstractAnvil implements Chunk {
     
     @Override
     public void flush() throws IOException {
-        saveTag(tag);
+        if (tag != null) {
+            saveTag(tag);
+        }
     }
     
     @Override

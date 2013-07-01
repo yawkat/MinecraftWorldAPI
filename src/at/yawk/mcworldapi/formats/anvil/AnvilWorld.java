@@ -67,9 +67,8 @@ class AnvilWorld extends AbstractAnvil implements World {
         BlockVector paste = offset.add(min); // [0:0:0]
         short[][][] ids = selection.getRawData().getBlockIds(); // 100**3
         byte[][][] data = selection.getRawData().getBlockData(); // 100**3
-        System.out.println("ARR " + ids[100][9][100]);
         
-        AnvilChunk[][] affectedChunks = new AnvilChunk[((max.getX() - min.getX()) >> 4) + 1][((max.getZ() - min.getZ()) >> 4) + 1]; // 7*7
+        AnvilChunk[][] affectedChunks = new AnvilChunk[((max.getX() - min.getX()) >> 4) + 1][((max.getZ() - min.getZ()) >> 4) + 1];
         for (int x = 0; x < affectedChunks.length; x++) {
             for (int z = 0; z < affectedChunks[0].length; z++) {
                 ChunkVector v = new ChunkVector((min.getX() >> 4) + x, (min.getZ() >> 4) + z);
@@ -87,32 +86,26 @@ class AnvilWorld extends AbstractAnvil implements World {
             }
         }
         
-        for (int x = 0 /*100*/, mx = max.getX() - min.getX() /*100*/; x < mx; x++) {
-            int chunkX = (x + (paste.getX() & 15)) >> 4; // 6 
-            int subX = (x + (paste.getX() & 15)) & 15; // 4
-            for (int y = 0, my = max.getY() - min.getY(); y < my; y++) {
-                int sectY = (y + (paste.getY() & 15)) >> 4; // 1
-                int subY = (y + (paste.getY() & 15)) & 15; // 4
-                for (int z = 0, mz = max.getZ() - min.getZ(); z < mz; z++) {
-                    int chunkZ = (z + (paste.getZ() & 15)) >> 4; // 6
-                    int subZ = (z + (paste.getZ() & 15)) & 15; // 4
-                    int sub = (subY << 8) | (subZ << 4) | subX; // 0x444
+        for (int x = 0, mx = max.getX() - min.getX(); x < mx; x++) {
+            int chunkX = (x + (paste.getX() & 15)) >> 4;
+            int subX = (x + (paste.getX() & 15)) & 15;
+            for (int z = 0, mz = max.getZ() - min.getZ(); z < mz; z++) {
+                int chunkZ = (z + (paste.getZ() & 15)) >> 4;
+                int subZ = (z + (paste.getZ() & 15)) & 15;
+                for (int y = 0, my = max.getY() - min.getY(); y < my; y++) {
+                    int sectY = (y + (paste.getY() & 15)) >> 4;
+                    int subY = (y + (paste.getY() & 15)) & 15;
+                    int sub = (subY << 8) | (subZ << 4) | subX;
                     tids[chunkX][sectY][chunkZ][sub] = (byte) ids[x][y][z];
                     setHalfByte(tids[chunkX][sectY][chunkZ], sub, data[x][y][z]);
-                    if (x == 100 && y == 9 && z == 100) {
-                        System.out.println(chunkX + " " + subX + " " + sectY + " " + subY + " " + chunkZ + " " + subZ + " " + sub + " " + ids[x][y][z]);
-                    }
                 }
-            }
-        }
-        System.out.println(tids[6][0][6][2372]);
-        System.out.println(affectedChunks[6][6].getSection(0).getBlockData()[4][9][4]);
-        for (AnvilChunk[] aa : affectedChunks) {
-            for (AnvilChunk a : aa) {
-                try {
-                    a.flush();
-                } catch (IOException e) {
-                    handle(e);
+                if ((z & 0xf) == 0xf || z == mz) {
+                    try {
+                        // for some reasons this is required to be flushed more than once.
+                        affectedChunks[x >> 4][z >> 4].flush();
+                    } catch (IOException e) {
+                        handle(e);
+                    }
                 }
             }
         }

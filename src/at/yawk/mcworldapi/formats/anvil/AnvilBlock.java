@@ -17,7 +17,7 @@ class AnvilBlock extends AbstractAnvil implements Block {
         this.chunkSection = chunkSection;
         this.index = index;
     }
-
+    
     @Override
     public int getId() {
         int id = 0;

@@ -38,6 +38,9 @@ class AnvilChunkSection extends AbstractAnvil implements ChunkSection, Selection
         final CompoundTag chunk = this.chunk.getChunk();
         @SuppressWarnings("unchecked")
         ListTag<CompoundTag> s = (ListTag<CompoundTag>) chunk.getList("Sections");
+        if (!chunk.contains("Sections")) {
+            chunk.put("Sections", s);
+        }
         while (s.size() <= index) {
             CompoundTag c = new CompoundTag();
             c.putInt("y", s.size());
@@ -80,12 +83,12 @@ class AnvilChunkSection extends AbstractAnvil implements ChunkSection, Selection
         if (sec != null) {
             byte[] d = sec.getByteArray("Blocks");
             for (int i = 0; i < CHUNK_SECTION_LENGTH; i++) {
-                a[i & 0xf][i >> 16][(i >> 8) & 0xf] = d[i];
+                a[i & 0xf][i >> 8][(i >> 4) & 0xf] = d[i];
             }
             byte[] add = sec.getByteArray("Add");
             if (add.length != 0) {
                 for (int i = 0; i < CHUNK_SECTION_LENGTH; i++) {
-                    a[i & 0xf][i >> 16][(i >> 8) & 0xf] |= add[i] << 8;
+                    a[i & 0xf][i >> 8][(i >> 4) & 0xf] |= add[i] << 8;
                 }
             }
         }
@@ -152,40 +155,5 @@ class AnvilChunkSection extends AbstractAnvil implements ChunkSection, Selection
             }
         }
         return l;
-    }
-    
-    void paste(short[][][] ids, boolean checkAdd, byte[][][] data, int sX1, int sY1, int sZ1, int sX2, int sY2, int sZ2, int dX1, int dY1, int dZ1) {
-        int offX = dX1 - sX1;
-        int offY = dY1 - sY1;
-        int offZ = dZ1 - sZ2;
-        byte[] targetIds = getSetSection().getByteArray("Blocks");
-        byte[] targetAdd;
-        if (checkAdd) {
-            targetAdd = getSetSection().getByteArray("Add");
-            if (targetAdd == null) {
-                targetAdd = new byte[2048];
-            }
-        } else {
-            targetAdd = null;
-        }
-        byte[] targetData = getSetSection().getByteArray("Data");
-        all: for (int x = sX1; x < sX2; x++) {
-            for (int y = sY1; y < sY2; y++) {
-                for (int z = sZ1; z < sZ2; z++) {
-                    int index = (y + offY) << 8 | (z + offZ) << 4 | (x + offX);
-                    if (targetIds.length > index) {
-                        targetIds[index] = (byte) ids[x][y][z];
-                        if (checkAdd && (ids[x][y][z] & ~0xff) != 0) {
-                            setHalfByte(targetAdd, index, (byte) (ids[x][y][z] >> 8));
-                        }
-                        if (data[x][y][z] != 0) {
-                            setHalfByte(targetData, index, data[x][y][z]);
-                        }
-                    } else {
-                        break all;
-                    }
-                }
-            }
-        }
     }
 }
