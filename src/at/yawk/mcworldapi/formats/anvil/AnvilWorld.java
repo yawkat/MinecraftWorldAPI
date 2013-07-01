@@ -92,22 +92,32 @@ class AnvilWorld extends AbstractAnvil implements World {
             for (int z = 0, mz = max.getZ() - min.getZ(); z < mz; z++) {
                 int chunkZ = (z + (paste.getZ() & 15)) >> 4;
                 int subZ = (z + (paste.getZ() & 15)) & 15;
+                int h = 0;
                 for (int y = 0, my = max.getY() - min.getY(); y < my; y++) {
                     int sectY = (y + (paste.getY() & 15)) >> 4;
                     int subY = (y + (paste.getY() & 15)) & 15;
                     int sub = (subY << 8) | (subZ << 4) | subX;
                     tids[chunkX][sectY][chunkZ][sub] = (byte) ids[x][y][z];
                     setHalfByte(tids[chunkX][sectY][chunkZ], sub, data[x][y][z]);
+                    if (ids[x][y][z] != 0) {
+                        h = y;
+                    }
                 }
+                affectedChunks[x >> CHUNK_SIZE_X_BITS][z >> CHUNK_SIZE_Z_BITS].getColumnRelative(new ChunkVector(subX, subZ)).setHighestBlockY(h);
                 if ((z & 0xf) == 0xf || z == mz) {
                     try {
                         // for some reasons this is required to be flushed more than once.
-                        affectedChunks[x >> 4][z >> 4].flush();
+                        affectedChunks[x >> CHUNK_SIZE_X_BITS][z >> CHUNK_SIZE_Z_BITS].flush();
                     } catch (IOException e) {
                         handle(e);
                     }
                 }
             }
         }
+    }
+    
+    @Override
+    public int getWorldHeight() {
+        return CHUNK_SIZE_Y;
     }
 }

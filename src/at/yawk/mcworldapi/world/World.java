@@ -15,4 +15,6 @@ public interface World extends BlockStorage {
     Region[] getRegions();
     
     void paste(Selection selection, BlockVector offset);
+    
+    int getWorldHeight();
 }

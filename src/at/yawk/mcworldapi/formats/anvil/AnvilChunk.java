@@ -7,11 +7,13 @@ import java.io.IOException;
 import at.yawk.mcworldapi.BlockVector;
 import at.yawk.mcworldapi.ChunkVector;
 import at.yawk.mcworldapi.world.Block;
+import at.yawk.mcworldapi.world.BlockColumn;
 import at.yawk.mcworldapi.world.Chunk;
 import at.yawk.mcworldapi.world.ChunkSection;
 import at.yawk.mcworldapi.world.TileEntity;
 
 import com.mojang.nbt.CompoundTag;
+import com.mojang.nbt.ListTag;
 import com.mojang.nbt.NbtIo;
 
 /**
@@ -38,7 +40,14 @@ class AnvilChunk extends AbstractAnvil implements Chunk {
             }
         }
         if (!tag.contains("Level")) {
-            tag.put("Level", new CompoundTag());
+            CompoundTag c = new CompoundTag();
+            c.putInt("xPos", location.getX() | (region.location.getX() << REGION_SIZE_X_BITS));
+            c.putInt("zPos", location.getZ() | (region.location.getZ() << REGION_SIZE_Z_BITS));
+            c.putBoolean("TerrainPopulated", true);
+            c.put("Entities", new ListTag<CompoundTag>());
+            c.put("TileEntities", new ListTag<CompoundTag>());
+            tag.put("Level", c);
+            return c;
         }
         return tag.getCompound("Level");
     }
@@ -100,5 +109,29 @@ class AnvilChunk extends AbstractAnvil implements Chunk {
             e[i] = getTileEntity(i);
         }
         return e;
+    }
+    
+    @Override
+    public int getColumnCount() {
+        return CHUNK_HORIZONTAL_LENGTH;
+    }
+    
+    @Override
+    public AnvilBlockColumn getColumn(int index) {
+        return new AnvilBlockColumn(this, index);
+    }
+    
+    @Override
+    public BlockColumn[] getColumns() {
+        BlockColumn[] res = new BlockColumn[getColumnCount()];
+        for (int i = 0; i < res.length; i++) {
+            res[i] = getColumn(i);
+        }
+        return res;
+    }
+    
+    @Override
+    public AnvilBlockColumn getColumnRelative(ChunkVector location) {
+        return getColumn(location.getX() | (location.getZ() << CHUNK_SIZE_Z_BITS));
     }
 }

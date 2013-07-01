@@ -39,7 +39,7 @@ class AnvilRegion extends AbstractAnvil implements Region {
         if (index < 0 || index >= getChunkCount()) {
             throw new ArrayIndexOutOfBoundsException();
         }
-        return getChunkRelative(new ChunkVector(index >> 5, index & 31));
+        return getChunkRelative(new ChunkVector(index >> REGION_BLOCKS_Z_BITS, index & (REGION_SIZE_X - 1)));
     }
     
     @Override

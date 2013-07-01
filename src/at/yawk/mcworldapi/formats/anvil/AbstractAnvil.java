@@ -1,6 +1,7 @@
 package at.yawk.mcworldapi.formats.anvil;
 
 import at.yawk.mcworldapi.world.Block;
+import at.yawk.mcworldapi.world.BlockColumn;
 import at.yawk.mcworldapi.world.Chunk;
 import at.yawk.mcworldapi.world.ChunkSection;
 import at.yawk.mcworldapi.world.Region;
@@ -83,6 +84,14 @@ abstract class AbstractAnvil {
      * Amount of {@link Chunk}s per {@link Region}
      */
     static final int REGION_LENGTH = 1 << REGION_LENGTH_BITS;
+    /**
+     * Amount of bits of {@link #CHUNK_HORIZONTAL_LENGTH}
+     */
+    static final int CHUNK_HORIZONTAL_LENGTH_BITS = CHUNK_SIZE_X_BITS + CHUNK_SIZE_Z_BITS;
+    /**
+     * Amount of {@link BlockColumn}s per {@link Chunk}
+     */
+    static final int CHUNK_HORIZONTAL_LENGTH = 1 << CHUNK_HORIZONTAL_LENGTH_BITS;
     
     protected <T> T handle(Throwable t) {
         throw new RuntimeException(t);

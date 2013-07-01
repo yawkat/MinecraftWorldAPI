@@ -19,6 +19,9 @@ class AnvilLevel extends AbstractAnvil implements Level {
     
     public AnvilLevel(File directory) {
         this.directory = directory;
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
     }
     
     @Override
